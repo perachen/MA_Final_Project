@@ -270,7 +270,7 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 ### **Variables Description** {#variable-description}
 
 | Name            | Description                                                |
-|--------------------------|----------------------------------------------|
+|-----------------|------------------------------------------------------------|
 | Site            | Site name                                                  |
 | ht_cm           | Measured from ground to highest plant tissue               |
 | Flowercolor     | Red, Purple, Pink, Pink-white and White                    |
