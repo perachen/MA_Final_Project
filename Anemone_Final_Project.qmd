@@ -1,0 +1,395 @@
+---
+title: "Anemone Coronaria"
+subtitle: "MA Practicum"
+author: "Perach Hen Elkayam"
+toc-title: Contents
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+editor: visual
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, warning=FALSE, include = FALSE}
+{
+  library(broom)
+  library(tidyverse)
+  library(gtsummary)
+  library(gt)
+  
+  select <- dplyr::select
+}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE)
+
+
+
+pv <- c(0.00001, 0.002, 0.02, 0.06, 0.12, 0.99)
+
+star_function <- function(x) {
+  symnum(x, corr = FALSE, na = FALSE, 
+         cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1), 
+         symbols = c("***", "**", "*", ".", " "))
+}
+stars <- star_function(pv)
+
+```
+
+\newpage
+
+## Introduction
+
+This project focus on an analysis of *Anemone coronaria* data that was collected by *Norah Saabnah* from the *School of Plant Sciences and Food Security.*
+
+The following research questions will deal with the roles of florivory and herbivory in maintaining flower color variation in Anemone coronaria. The statistical questions are:
+
+1.  Whether the herbivores chose to eat the leaves because of the color of the flower
+
+2.  Whether the florivors chose to eat the flower because of the color of the flower
+
+3.  Whether the herbivory reduces the weight of seeds
+
+4.  Whether the florivory reduces the number of seeds
+
+## Background
+
+*Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
+
+![Flower color by site](figure1_flowercolor_site.png "Figure 1"){#fig-figure_1 fig-align="center" width="395"}
+
+\newpage
+
+Plants attract pollinators by presenting flowers in a distinct color [@vanderkooi2016]. Color vision is widespread among pollinators but varies among species and depends on the spectral sensitivities of the photoreceptors and their interplay [@vanderkooi2021]. Consequently, much research of flower color variation explored its consequences for interactions with pollinators. Balancing selection by pollinators and herbivores is thought to be an important mechanism maintaining variation in flower color. Flower color morphs that are preferred by pollinators and are also susceptible to herbivores, may undergo a conflicting selection pressure on flower color [@sapir2021a]. Herbivory, the consumption of plant tissues by an animal, can occur on leaves (herbivory) or flowers (florivory). From here on, we refer to leaf damage as *herbivory*, and flower damage as *florivory*.
+
+Glaphyrid beetles are the major pollinators of *Anemone coronaria*, as well as one of the major florivores on *Anemone coronaria*, eating petals and pollen [@doi:10.1080/0021213X.1990.10677134]. Previous studies showed that beetles see red flowers well, therefore visit red flower models more frequently than models of different colors [@martínez-harms2012]. The distribution of *Anemone coronaria* in Israel is wide and it is highly abundant along the climate gradient.
+
+A few characteristics make *Anemone coronaria* a good model plant: color is governed by a simple heredity system [@horovitz1975], and the pollination system is relatively simple because the plant is self-incompatible and offers only pollen as reward for pollinators. For these reasons, and due to the prominent flower color variation, *Anemone coronaria* provides an excellent model system to understand the drivers of flower color variation and what maintains it.
+
+\newpage
+
+## The Data
+
+The data consist of 60 field measurements in 4 different sites in Israel: Sarid, Megido, Beqoa, and Shokeda. The sites were chosen based on a preliminary survey of populations during 2020-2021 by Dr. Yuval Sapir and Prof. Tamar Keasar.
+
+During the flowering season, the data was collected three times at each site: at the beginning of the flowering season (mid-January), in the middle of it (Early February), and at its end (late February/early March).
+
+At each site, 30 flowers and their nearest neighbors were randomly chosen, and a total of 60 flowers were sampled at each site according to the [*Protocol for Quantifying Variability in Plant-Herbivore Interactions*](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://herbvar.org/protocols/Primary%20protocol%20for%20Herbivory%20Variability%20Network.pdf) that is designed to deal with highly skewed distribution of plants damage (See Appendix for [detailed sampling protocol](#sec-sampling_protocol)). The flower color, weight and number of seeds, Flower sex, height, leaf damage, and petal damage were measured for each plant. The leaf damage and petal damage were measured by visually estimating the percentage of the area damaged according to [Herbvar online application](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://herbvar.org/protocols/HerbVar%20Damage%20Estimation%20Guidelines.pdf).
+
+In Figure 1 we can see that only in *Bequa* we have enough red and non-red flowers in order to make an analysis (in Sarid and Shokeda there are only red flowers, and in Megido there are only five red flowers). Including data from sites with imbalanced values of red and non-red flowers might lead to incorrect conclusions as the site variables play a role as confounders. Therefore, I will use only data from *Bequa* for the first two research questions. This data contains 60 observations.
+
+See Appendix for [variable description](#variable-description).
+
+##### Preprocess
+
+The data included some missing values. Observations with missing response variables were omitted from the analysis.
+
+To apply Beta Regression I had to change some observations from 0 to 0.001 in the two response variables - the rate of the petal damage and the leaf damage:
+
+```{r}
+readRDS("tbl_of_transformed_values_EDA_part.RDS") %>% 
+  knitr::kable(caption = 'Number of values transformed from 0 to 0.001') %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
+\newpage
+
+## Methodology
+
+I used Beta Regression [@cribari-neto2010] for the first two questions since the response variables (rate of damage of petals and leaves), are in the range of \[0,1) and stand for rate. The main problem with this method is that there are some cases of 0s in the response variables. In order to overcome the problem, I manipulated the rate variables, as I mentioned in the [preprocess] section.
+
+To ensure that the results are consistent I decided to try two additional methods: Linear Regression and Ordinal Regression that are more common and have better documentation than the Beta Regression. Both methods are not the ultimate solution for this kind of a problem since they are not designed for a rate outcome. Moreover the Ordinal Regression forced me to create an ordinal-categorical variable from the original outcome variable which leads to information loss.
+
+For the last two question I used Linear Regression to model the weight and the number of seeds of the plant. In these research questions the choice was straight-forward since the outcome is continuous.
+
+\newpage
+
+## Results
+
+### Whether the herbivores chose to eat the leaves because of the color of the flower
+
+The graph and the regression analysis show no evidence of the color's effect on the herbivory rate for every reasonable significance level. As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
+
+![](herbivory_by_color_plot.png){fig-align="center" width="528" height="253"}
+
+```{r "Beta Regression for Rate of Leaf Damage (Herbivory)"}
+
+beta_reg_herbivors_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_herbivors.RDS")
+
+beta_reg_herbivors_model %>% 
+  select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  filter(Coefficients != "(phi)") %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male"
+  )) %>% 
+  kableExtra::kable(caption = "Beta Regression for Rate of Leaf Damage (Herbivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
+\newpage
+
+### Whether the florivors chose to eat the flower because of the color of the flower
+
+According to the regression analysis, there is no evidence for the effect of the color over the florivory rate for every reasonable significance level. As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
+
+![](florivory_by_color_plot.png){fig-align="center" width="528" height="253"}
+
+```{r "Beta Regression for Rate of Petals Damage (Florivory)"}
+
+beta_reg_florivors_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_florivors.RDS")
+
+beta_reg_florivors_model %>% 
+  select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  filter(Coefficients != "(phi)") %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male"
+  )) %>% 
+  
+  kableExtra::kable(caption = "Beta Regression for Rate of Petals Damage (Florivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
+\newpage
+
+### Whether the herbivory reduces the weight of seeds
+
+According to the regression analysis, there is a significant negative effect of the rate of leaf damage (Herbivory) over the weight of the seeds for a significance level of 0.05 but not for a significance level of 0.01.
+
+![](herbivory_by_weight_of_seeds.png){fig-align="center" width="526" height="335"}
+
+```{r "Linear Model for Seed Weight (Fitness)"}
+lm_herb_fitness_seed_weight <-  readRDS("Saving_models_as_RDS_folder/lm_herb_fitness_seed_weight.RDS")
+
+lm_herb_fitness_seed_weight %>% 
+  select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+                                  Coefficients == "rate_Herb" ~ "Rate of Leaf Damage (Herbivory)",
+                                  Coefficients == "SiteMegido" ~ "Site,Megido",
+                                  Coefficients == "SiteSarid" ~ "Site,Sarid",
+                                  Coefficients == "SiteShokeda" ~ "Site,Shokeda",
+                                  T ~ Coefficients
+  )) %>% 
+  
+  kableExtra::kable(caption = "Linear Model for Seed Weight (Fitness)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+### Whether the florivory reduces the number of seeds
+
+The regression analysis shows that there is a significant negative effect of the rate of petals damage (Florivory) over the number of seeds for a significance level of 0.1 but not for a significance level of 0.05.
+
+![](florivory_by_number_of_seeds.png){fig-align="center" width="526" height="335"}
+
+```{r "Linear Model for the Number of Seeds (Fitness)"}
+lm_flori_fitness_number_of_seeds <- readRDS("Saving_models_as_RDS_folder/lm_flori_fitness_number_of_seeds.RDS")
+
+lm_flori_fitness_number_of_seeds %>% 
+  select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+                                  Coefficients == "rate_petals" ~ "Rate of Petals Damage (Florivory)",
+                                  Coefficients == "SiteMegido" ~ "Site,Megido",
+                                  Coefficients == "SiteSarid" ~ "Site,Sarid",
+                                  Coefficients == "SiteShokeda" ~ "Site,Shokeda",
+                                  T ~ Coefficients
+  )) %>% 
+  kableExtra::kable(caption = "Linear Model for the Number of Seeds (Fitness)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
+\newpage
+
+## Conclusions
+
+In this report, I fitted several models to four research questions. For the first two questions - whether the herbivores or florivors chose to eat the leaves because of the color of the flower, I fitted Beta, Linear, and Ordinal Regression to observe whether I got consistent results. I found no evidence in all the models that the color of the flower affects the herbivory or the florivory rate.
+
+For the two other questions - whether the herbivory reduces the weight of seeds and whether the florivory reduces the number of seeds, I fitted Linear Regression. I found that there is a moderate evidence that the rate of leaf damage (Herbivory) reduces the weight of the seeds and that there is a weak evidence that the rate of petals damage (Florivory) reduces the number of seeds.
+
+## Limitations
+
+-   The leaf and petal damage were measured by visually estimating the percentage of the area damaged - a subjective measure.
+
+-   Two first research questions are analyzed only with data from Bequa site. Recommendation for future research - collect a sufficient number of red flowers in Megido to use data from another site besides Bequa for the two first research questions.
+
+\newpage
+
+## Appendix {.appendix}
+
+### **Sampling protocol:** {#sec-sampling_protocol}
+
+(1) Record plant density in 10 randomly located 1-m^2^ areas to estimate average plant density, which is used to calculate quadrat radius.
+
+(2) A quadrat with one focal plant and its nearest neighbor (outside quadrat).
+
+(3) A quadrat with no focal plants.
+
+(4) A quadrat with 5 focal plants; plant 3 is randomly selected for data collection, and its nearest neighbor is plant 4. Diagram by Moria Robinson.
+
+![](sampling_protocol.png){fig-align="center" width="374"}
+
+### **Variables Description** {#variable-description}
+
+| Name            | Description                                                |
+|--------------------------|----------------------------------------------|
+| Site            | Site name                                                  |
+| ht_cm           | Measured from ground to highest plant tissue               |
+| Flowercolor     | Red, Purple, Pink, Pink-white and White                    |
+| color           | The flower color categorized as red or non-red             |
+| Flowersexual    | Female or Male                                             |
+| weight_of_seeds | Weight of seeds                                            |
+| number_of_seeds | Number of seeds                                            |
+| rate_herb       | The rate of leaf damage - measured by visually estimating  |
+| rate_petals     | The rate of petal damage - measured by visually estimating |
+
+### **Additional Models for the Rate of Leaf Damage (Herbivory)**
+
+##### Categorical Regression
+
+```{r}
+categorical_regression_herbivors <- readRDS("Saving_models_as_RDS_folder/categorical_regression_herbivors.RDS")
+
+categorical_regression_herbivors %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "Coefficients") %>% 
+  rename(Estimate = Value,
+         "P Value" = `p value`) %>% 
+  select(Coefficients, Estimate, `P Value`) %>% 
+  mutate(" " = as.character(star_function(`P Value`))) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+                                  T ~ Coefficients
+  )) %>% 
+  kableExtra::kable(caption = "Categorical Regression for Rate of Leaf Damage (Herbivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
+##### Linear Regression
+
+```{r}
+lm_herbivory_alternative <- readRDS("Saving_models_as_RDS_folder/lm_herbivory_alternative.RDS")
+
+lm_herbivory_alternative %>% 
+ select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male"
+  )) %>% 
+  kableExtra::kable(caption = "Linear Regression for Rate of Leaf Damage (Herbivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+
+```
+
+### **Additional Models for the Rate of Petals Damage (Florivory)**
+
+##### Categorical Regression {#categorical-regression-1}
+
+```{r}
+categorical_regression_florivors <- readRDS("Saving_models_as_RDS_folder/categorical_regression_florivors.RDS")
+
+
+categorical_regression_florivors %>%
+  as.data.frame() %>% 
+  rownames_to_column(var = "Coefficients") %>% 
+  rename(Estimate = Value,
+         "P Value" = `p value`) %>% 
+  select(Coefficients, Estimate, `P Value`) %>% 
+  mutate(" " = as.character(star_function(`P Value`))) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+                                  T ~ Coefficients
+  )) %>% 
+  kableExtra::kable(caption = "Categorical Regression for Rate of Petals Damage (Florivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+
+```
+
+##### Linear Regression {#linear-regression-1}
+
+```{r}
+
+lm_florivor_alternative <- readRDS("Saving_models_as_RDS_folder/lm_florivor_alternative.RDS")
+
+
+
+lm_florivor_alternative %>% 
+  select(term, estimate, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value) %>% 
+  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red",
+                                  Coefficients == "ht_cm" ~ "Height",
+                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male"
+  )) %>% 
+  kableExtra::kable(caption = "Linear Regression for Rate of Petals Damage (Florivory)",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+
+```
+
+### **Code and Data**
+
+\newpage
+
+## Reference
