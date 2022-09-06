@@ -80,7 +80,7 @@ In Figure 1 we can see that only in *Bequa* we have enough red and non-red flowe
 
 See Appendix for [variable description](#variable-description).
 
-##### Preprocess
+### Preprocess
 
 The data included some missing values. Observations with missing response variables were omitted from the analysis.
 
@@ -270,7 +270,7 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 ### **Variables Description** {#variable-description}
 
 | Name            | Description                                                |
-|-----------------|------------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | Site            | Site name                                                  |
 | ht_cm           | Measured from ground to highest plant tissue               |
 | Flowercolor     | Red, Purple, Pink, Pink-white and White                    |
@@ -389,6 +389,8 @@ lm_florivor_alternative %>%
 ```
 
 ### **Code and Data**
+
+[Link to my project in github.](https://github.com/perachen/MA_Final_Project)
 
 \newpage
 
