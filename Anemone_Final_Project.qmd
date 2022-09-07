@@ -40,7 +40,7 @@ stars <- star_function(pv)
 
 ## Introduction
 
-This project focus on an analysis of *Anemone coronaria* data that was collected by *Norah Saabnah* from the *School of Plant Sciences and Food Security.*
+This project focus on an analysis of *Anemone coronaria* data that was collected by Norah Saabnah from the School of Plant Sciences and Food Security in Tel Aviv University.
 
 The following research questions will deal with the roles of florivory and herbivory in maintaining flower color variation in Anemone coronaria. The statistical questions are:
 
@@ -54,6 +54,7 @@ The following research questions will deal with the roles of florivory and herbi
 
 ## Background
 
+The following section is a summerise of Norah Saabnah's research proposal introduction section.
 *Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
 
 ![Flower color by site](figure1_flowercolor_site.png "Figure 1"){#fig-figure_1 fig-align="center" width="395"}
@@ -102,8 +103,6 @@ To ensure that the results are consistent I decided to try two additional method
 
 For the last two question I used Linear Regression to model the weight and the number of seeds of the plant. In these research questions the choice was straight-forward since the outcome is continuous.
 
-\newpage
-
 ## Results
 
 ### Whether the herbivores chose to eat the leaves because of the color of the flower
@@ -115,14 +114,19 @@ The graph and the regression analysis show no evidence of the color's effect on 
 ```{r "Beta Regression for Rate of Leaf Damage (Herbivory)"}
 
 beta_reg_herbivors_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_herbivors.RDS")
-
+#######################################
 beta_reg_herbivors_model %>% 
-  select(term, estimate, p.value) %>% 
+  select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
+    mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
   filter(Coefficients != "(phi)") %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
@@ -134,8 +138,6 @@ beta_reg_herbivors_model %>%
                     longtable = TRUE) %>% 
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
-
-\newpage
 
 ### Whether the florivors chose to eat the flower because of the color of the flower
 
@@ -166,8 +168,6 @@ beta_reg_florivors_model %>%
                     longtable = TRUE) %>% 
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
-
-\newpage
 
 ### Whether the herbivory reduces the weight of seeds
 
@@ -203,8 +203,6 @@ lm_herb_fitness_seed_weight %>%
 
 ```
 
-\newpage
-
 ### Whether the florivory reduces the number of seeds
 
 The regression analysis shows that there is a significant negative effect of the rate of petals damage (Florivory) over the number of seeds for a significance level of 0.1 but not for a significance level of 0.05.
@@ -236,8 +234,6 @@ lm_flori_fitness_number_of_seeds %>%
                     longtable = TRUE) %>% 
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
-
-\newpage
 
 ## Conclusions
 
