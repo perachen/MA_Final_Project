@@ -54,8 +54,7 @@ The following research questions will deal with the roles of florivory and herbi
 
 ## Background
 
-The following section is a summerise of Norah Saabnah's research proposal introduction section.
-*Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
+The following section is a summerise of Norah Saabnah's research proposal introduction section. *Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
 
 ![Flower color by site](figure1_flowercolor_site.png "Figure 1"){#fig-figure_1 fig-align="center" width="395"}
 
@@ -107,18 +106,19 @@ For the last two question I used Linear Regression to model the weight and the n
 
 ### Whether the herbivores chose to eat the leaves because of the color of the flower
 
-The graph and the regression analysis show no evidence of the color's effect on the herbivory rate for every reasonable significance level. As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
+The graph and the regression analysis show no evidence of the color's effect on the herbivory rate for every reasonable significance level. We get the same result in the [Beta regression model just on color](#herbi_color_beta_reg).
 
-![](herbivory_by_color_plot.png){fig-align="center" width="528" height="253"}
+As can be seen in the appendix, the results from the [Linear Regression](#lm_herbivory) and the [Categorical Regression](#categorical_model_herbivory) are consistent with the results of the beta regression (that is presented below).
+
 
 ```{r "Beta Regression for Rate of Leaf Damage (Herbivory)"}
 
 beta_reg_herbivors_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_herbivors.RDS")
-#######################################
+
 beta_reg_herbivors_model %>% 
   select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
-    mutate(p.value = ifelse(p.value < 0.001,
+  mutate(p.value = ifelse(p.value < 0.001,
                           no = round(p.value, digits = 3),
                           yes = format(p.value, scientific = TRUE,
                                        digits = 3))) %>%
@@ -137,25 +137,34 @@ beta_reg_herbivors_model %>%
                     booktabs = TRUE,
                     longtable = TRUE) %>% 
   kableExtra::kable_styling(latex_options = "HOLD_position")
+  
 ```
+
+![](herbivory_by_color_plot.png){fig-align="center" width="590" height="253"}
+
 
 ### Whether the florivors chose to eat the flower because of the color of the flower
 
-According to the regression analysis, there is no evidence for the effect of the color over the florivory rate for every reasonable significance level. As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
+According to the Beta regression analysis, there is no evidence for the effect of the color over the florivory rate for every reasonable significance level. We can see that we get the same result in the [Beta regression model just on color](#flori_color_beta_reg).
 
-![](florivory_by_color_plot.png){fig-align="center" width="528" height="253"}
+As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
 
 ```{r "Beta Regression for Rate of Petals Damage (Florivory)"}
 
 beta_reg_florivors_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_florivors.RDS")
 
 beta_reg_florivors_model %>% 
-  select(term, estimate, p.value) %>% 
+  select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
+  mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
   filter(Coefficients != "(phi)") %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
@@ -169,6 +178,10 @@ beta_reg_florivors_model %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
+![](florivory_by_color_plot.png){fig-align="center" width="528" height="253"}
+
+\newpage
+
 ### Whether the herbivory reduces the weight of seeds
 
 According to the regression analysis, there is a significant negative effect of the rate of leaf damage (Herbivory) over the weight of the seeds for a significance level of 0.05 but not for a significance level of 0.01.
@@ -179,12 +192,17 @@ According to the regression analysis, there is a significant negative effect of 
 lm_herb_fitness_seed_weight <-  readRDS("Saving_models_as_RDS_folder/lm_herb_fitness_seed_weight.RDS")
 
 lm_herb_fitness_seed_weight %>% 
-  select(term, estimate, p.value) %>% 
+  select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
+  mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
                                   Coefficients == "ht_cm" ~ "Height",
@@ -195,13 +213,14 @@ lm_herb_fitness_seed_weight %>%
                                   Coefficients == "SiteShokeda" ~ "Site,Shokeda",
                                   T ~ Coefficients
   )) %>% 
-  
   kableExtra::kable(caption = "Linear Model for Seed Weight (Fitness)",
                     booktabs = TRUE,
                     longtable = TRUE) %>% 
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
+
+\newpage
 
 ### Whether the florivory reduces the number of seeds
 
@@ -213,12 +232,17 @@ The regression analysis shows that there is a significant negative effect of the
 lm_flori_fitness_number_of_seeds <- readRDS("Saving_models_as_RDS_folder/lm_flori_fitness_number_of_seeds.RDS")
 
 lm_flori_fitness_number_of_seeds %>% 
-  select(term, estimate, p.value) %>% 
+  select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
+  mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
                                   Coefficients == "ht_cm" ~ "Height",
@@ -247,11 +271,10 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 
 -   Two first research questions are analyzed only with data from Bequa site. Recommendation for future research - collect a sufficient number of red flowers in Megido to use data from another site besides Bequa for the two first research questions.
 
-\newpage
 
 ## Appendix {.appendix}
 
-### **Sampling protocol:** {#sec-sampling_protocol}
+### **Sampling protocol** {#sec-sampling_protocol}
 
 (1) Record plant density in 10 randomly located 1-m^2^ areas to estimate average plant density, which is used to calculate quadrat radius.
 
@@ -279,7 +302,36 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 
 ### **Additional Models for the Rate of Leaf Damage (Herbivory)**
 
-##### Categorical Regression
+##### One Variable Beta regression {#herbi_color_beta_reg}
+
+```{r}
+beta_reg_herbivors_color_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_herbivors_color.RDS")
+
+beta_reg_herbivors_color_model %>% 
+  select(term, estimate, std.error, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
+  filter(Coefficients != "(phi)") %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red"
+  )) %>% 
+  kableExtra::kable(caption = "Beta Regression for Rate of Leaf Damage (Herbivory) by Color",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+  
+
+```
+
+##### Categorical Regression {#categorical_model_herbivory}
 
 ```{r}
 categorical_regression_herbivors <- readRDS("Saving_models_as_RDS_folder/categorical_regression_herbivors.RDS")
@@ -288,15 +340,20 @@ categorical_regression_herbivors %>%
   as.data.frame() %>% 
   rownames_to_column(var = "Coefficients") %>% 
   rename(Estimate = Value,
-         "P Value" = `p value`) %>% 
-  select(Coefficients, Estimate, `P Value`) %>% 
+         "P Value" = `p value`,
+         SE = `Std. Error`) %>% 
+  select(Coefficients, Estimate, SE, `P Value`) %>% 
   mutate(" " = as.character(star_function(`P Value`))) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
+  mutate(`P Value` = ifelse(`P Value` < 0.001,
+                            no = round(`P Value`, digits = 3),
+                            yes = format(`P Value`, scientific = TRUE,
+                                         digits = 3))) %>%
   mutate(Coefficients = case_when(
-                                  Coefficients == "colorRed" ~ "Color,Red",
-                                  Coefficients == "ht_cm" ~ "Height",
-                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
-                                  T ~ Coefficients
+    Coefficients == "colorRed" ~ "Color,Red",
+    Coefficients == "ht_cm" ~ "Height",
+    Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+    T ~ Coefficients
   )) %>% 
   kableExtra::kable(caption = "Categorical Regression for Rate of Leaf Damage (Herbivory)",
                     booktabs = TRUE,
@@ -304,18 +361,23 @@ categorical_regression_herbivors %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
-##### Linear Regression
+##### Linear Regression {#lm_herbivory}
 
 ```{r}
 lm_herbivory_alternative <- readRDS("Saving_models_as_RDS_folder/lm_herbivory_alternative.RDS")
 
 lm_herbivory_alternative %>% 
- select(term, estimate, p.value) %>% 
+  select(term, estimate, std.error, p.value) %>% 
   mutate(" " = as.character(star_function(p.value))) %>% 
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
+  mutate(`P Value` = ifelse(`P Value` < 0.001,
+                            no = round(`P Value`, digits = 3),
+                            yes = format(`P Value`, scientific = TRUE,
+                                         digits = 3))) %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
                                   Coefficients == "ht_cm" ~ "Height",
@@ -330,6 +392,32 @@ lm_herbivory_alternative %>%
 
 ### **Additional Models for the Rate of Petals Damage (Florivory)**
 
+##### One Variable Beta regression {#flori_color_beta_reg}
+
+```{r}
+beta_reg_florivors_color_model <- readRDS("Saving_models_as_RDS_folder/beta_reg_florivors_color.RDS")
+
+beta_reg_florivors_color_model %>% 
+  select(term, estimate, std.error, p.value) %>% 
+  mutate(" " = as.character(star_function(p.value))) %>% 
+  mutate(p.value = ifelse(p.value < 0.001,
+                          no = round(p.value, digits = 3),
+                          yes = format(p.value, scientific = TRUE,
+                                       digits = 3))) %>%
+  rename(Coefficients = term,
+         Estimate = estimate,
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
+  filter(Coefficients != "(phi)") %>%
+  mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
+                                  Coefficients == "colorRed" ~ "Color,Red")) %>% 
+  kableExtra::kable(caption = "Beta Regression for Rate of Petals Damage (Florivory) by Color",
+                    booktabs = TRUE,
+                    longtable = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+```
+
 ##### Categorical Regression {#categorical-regression-1}
 
 ```{r}
@@ -340,15 +428,20 @@ categorical_regression_florivors %>%
   as.data.frame() %>% 
   rownames_to_column(var = "Coefficients") %>% 
   rename(Estimate = Value,
-         "P Value" = `p value`) %>% 
-  select(Coefficients, Estimate, `P Value`) %>% 
+         "P Value" = `p value`,
+         SE = `Std. Error`) %>% 
+  select(Coefficients, Estimate, SE, `P Value`) %>% 
   mutate(" " = as.character(star_function(`P Value`))) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+  mutate_at(vars(Estimate, SE), ~round(., digits = 3)) %>%
+  mutate(`P Value` = ifelse(`P Value` < 0.001,
+                            no = round(`P Value`, digits = 3),
+                            yes = format(`P Value`, scientific = TRUE,
+                                         digits = 3))) %>%
   mutate(Coefficients = case_when(
-                                  Coefficients == "colorRed" ~ "Color,Red",
-                                  Coefficients == "ht_cm" ~ "Height",
-                                  Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
-                                  T ~ Coefficients
+    Coefficients == "colorRed" ~ "Color,Red",
+    Coefficients == "ht_cm" ~ "Height",
+    Coefficients == "FlowersexualMale" ~ "Flowersexual,Male",
+    T ~ Coefficients
   )) %>% 
   kableExtra::kable(caption = "Categorical Regression for Rate of Petals Damage (Florivory)",
                     booktabs = TRUE,
@@ -366,12 +459,20 @@ lm_florivor_alternative <- readRDS("Saving_models_as_RDS_folder/lm_florivor_alte
 
 
 lm_florivor_alternative %>% 
-  select(term, estimate, p.value) %>% 
-  mutate(" " = as.character(star_function(p.value))) %>% 
+  select(term, estimate, std.error, p.value) %>%   mutate(" " = as.character(star_function(p.value))) %>% 
   rename(Coefficients = term,
          Estimate = estimate,
-         "P Value" = p.value) %>% 
-  mutate_at(vars(Estimate, `P Value`), ~round(., digits = 4)) %>%
+         "P Value" = p.value,
+         SE = std.error) %>% 
+  mutate_at(vars(SE), ~round(., digits = 3)) %>%
+  mutate(`P Value` = ifelse(`P Value` < 0.001,
+                            no = round(`P Value`, digits = 3),
+                            yes = format(`P Value`, scientific = TRUE,
+                                         digits = 3))) %>%
+  mutate(Estimate = ifelse(Estimate < 0.001,
+                           no = round(Estimate, digits = 3),
+                           yes = format(Estimate, scientific = TRUE,
+                                        digits = 3))) %>%
   mutate(Coefficients = case_when(Coefficients == "(Intercept)" ~ "Intercept",
                                   Coefficients == "colorRed" ~ "Color,Red",
                                   Coefficients == "ht_cm" ~ "Height",

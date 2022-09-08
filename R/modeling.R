@@ -13,6 +13,13 @@ summary(beta_reg_florivors)
 broom::tidy(beta_reg_florivors) %>% 
   saveRDS("Saving_models_as_RDS_folder/beta_reg_florivors.RDS")
 
+# Only by color
+beta_reg_florivors_color <- betareg(rate_petals ~ color,
+                                    data = omitted_data, 
+                                    link = "logit")
+
+broom::tidy(beta_reg_florivors_color) %>%
+  saveRDS("Saving_models_as_RDS_folder/beta_reg_florivors_color.RDS")
 
 
 
@@ -60,6 +67,16 @@ summary(beta_reg_herbivors)
 broom::tidy(beta_reg_herbivors) %>% 
   saveRDS("Saving_models_as_RDS_folder/beta_reg_herbivors.RDS")
 
+# Only by color
+beta_reg_herbivors_color <- betareg(rate_Herb ~ color,
+                                    data = omitted_data, 
+                                    link = "logit")
+
+broom::tidy(beta_reg_herbivors_color) %>% 
+  saveRDS("Saving_models_as_RDS_folder/beta_reg_herbivors_color.RDS")
+
+
+
 
 # Ordinal regression for HERBIVORY
 herb_ordinal_mod <- polr(Y ~ color + ht_cm + 
@@ -87,11 +104,11 @@ tidy(lm_herb) %>%
 
 # Whether the herbivory reduces fitness to a different extent in red flowers vs. non-red flowers ----
 lm_herb_fitness_seed_weight <- lm(weight_of_seeds ~ rate_Herb +
-                color + 
-                ht_cm + 
-                Flowersexual +
-                Site,
-              data = last_two_q)
+                                    color + 
+                                    ht_cm + 
+                                    Flowersexual +
+                                    Site,
+                                  data = last_two_q)
 
 summary(lm_herb_fitness_seed_weight)
 
@@ -103,11 +120,11 @@ broom::tidy(lm_herb_fitness_seed_weight) %>%
 
 # Whether the florivory reduces fitness to a different extent in red flowers vs. non-red flowers -----
 lm_flori_fitness_number_of_seeds <- lm(number_of_seeds ~ rate_petals +
-                 color +
-                 ht_cm +
-                 Flowersexual +
-                 Site,
-               data = last_two_q)
+                                         color +
+                                         ht_cm +
+                                         Flowersexual +
+                                         Site,
+                                       data = last_two_q)
 
 summary(lm_flori_fitness_number_of_seeds)
 
