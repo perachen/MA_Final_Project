@@ -2,8 +2,7 @@ source("R/preprocess.R")
 
 ### Exploration
 
-# Flower color by sites #TODO - report
-# flower_color_by_site_plot <-
+# Flower color by sites 
 prep_dat %>% 
   select(Flowercolor, Site) %>%
   group_by(Site) %>% 
@@ -73,7 +72,8 @@ herbi_plot <- prep_dat %>%
         plot.title = element_markdown()) 
   
 
-ggsave(plot = herbi_plot, filename = "herbivory_by_color_plot.png")
+# ggsave(plot = herbi_plot,
+#        filename = "herbivory_by_color_plot.png")
 
 
 
@@ -107,7 +107,8 @@ flori_plot <- prep_dat %>%
         plot.title = element_markdown())
 
 
-ggsave(plot = flori_plot, filename = "florivory_by_color_plot.png")
+# ggsave(plot = flori_plot,
+#     filename = "florivory_by_color_plot.png")
 
 
 
@@ -129,8 +130,8 @@ florivory_by_number_of_seeds <- prep_dat %>%
         plot.title = element_markdown())
 
 
-ggsave(plot = florivory_by_number_of_seeds,
-       filename = "florivory_by_number_of_seeds.png")
+# ggsave(plot = florivory_by_number_of_seeds,
+#        filename = "florivory_by_number_of_seeds.png")
 
 
 
@@ -150,6 +151,6 @@ herbivory_by_weight_of_seeds <- prep_dat %>%
         panel.grid = element_blank(),
         plot.title = element_markdown())
   
-ggsave(plot = herbivory_by_weight_of_seeds,
-       filename = "herbivory_by_weight_of_seeds.png")
+# ggsave(plot = herbivory_by_weight_of_seeds,
+#        filename = "herbivory_by_weight_of_seeds.png")
 

@@ -9,6 +9,9 @@ format:
     number-sections: true
     colorlinks: true
 editor: visual
+header-includes:
+   \usepackage{float}
+   \floatplacement{table}{'H'}
 bibliography: references.bib
 ---
 
@@ -21,7 +24,7 @@ bibliography: references.bib
   
   select <- dplyr::select
 }
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, fig.pos = "H", out.extra = "")
 
 
 
@@ -54,11 +57,7 @@ The following research questions will deal with the roles of florivory and herbi
 
 ## Background
 
-The following section is a summerise of Norah Saabnah's research proposal introduction section. *Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
-
-![Flower color by site](figure1_flowercolor_site.png "Figure 1"){#fig-figure_1 fig-align="center" width="395"}
-
-\newpage
+The following section is a summerise of Norah Saabnah's research proposal introduction section. *Anemone coronaria* is a winter flowering species that is dormant during the dry season and regenerates annually from subterranean buds on a corm. Each flower blooms for a few weeks in mid-winter. The flowers open and close according to the sunshine and other weather condition. *Anemone coronaria* displays a wide and heritable diversity of floral colors from red through purple and blue to white, with high variation within and among populations [@ehrendorfer2009]. While red flowers are abundant throughout the whole distribution of the species, non-red flowers (white, pink, purple or blue) are present only in the Mediterranean climate region. We can also see in [figure 1](#fig-figure_1) that in the collected data we have mostly red *Anemone coronaria* (in Sarid and Shokeda all the flowers are red).
 
 Plants attract pollinators by presenting flowers in a distinct color [@vanderkooi2016]. Color vision is widespread among pollinators but varies among species and depends on the spectral sensitivities of the photoreceptors and their interplay [@vanderkooi2021]. Consequently, much research of flower color variation explored its consequences for interactions with pollinators. Balancing selection by pollinators and herbivores is thought to be an important mechanism maintaining variation in flower color. Flower color morphs that are preferred by pollinators and are also susceptible to herbivores, may undergo a conflicting selection pressure on flower color [@sapir2021a]. Herbivory, the consumption of plant tissues by an animal, can occur on leaves (herbivory) or flowers (florivory). From here on, we refer to leaf damage as *herbivory*, and flower damage as *florivory*.
 
@@ -66,7 +65,7 @@ Glaphyrid beetles are the major pollinators of *Anemone coronaria*, as well as o
 
 A few characteristics make *Anemone coronaria* a good model plant: color is governed by a simple heredity system [@horovitz1975], and the pollination system is relatively simple because the plant is self-incompatible and offers only pollen as reward for pollinators. For these reasons, and due to the prominent flower color variation, *Anemone coronaria* provides an excellent model system to understand the drivers of flower color variation and what maintains it.
 
-\newpage
+![Flower color by site](figure1_flowercolor_site2.png "Figure 1"){#fig-figure_1 fig-align="center" width="378"}
 
 ## The Data
 
@@ -84,15 +83,15 @@ See Appendix for [variable description](#variable-description).
 
 The data included some missing values. Observations with missing response variables were omitted from the analysis.
 
-To apply Beta Regression I had to change some observations from 0 to 0.001 in the two response variables - the rate of the petal damage and the leaf damage:
+To apply Beta Regression I had to change some observations from 0 to 0.001 in the two response variables (As an additional check some other small-nonzero values \[0.01, 0.005, 0.0001\] led to the same conclusions).
+
+The rate of the petal damage and the leaf damage:
 
 ```{r}
 readRDS("tbl_of_transformed_values_EDA_part.RDS") %>% 
-  knitr::kable(caption = 'Number of values transformed from 0 to 0.001') %>% 
+  knitr::kable(caption = 'Number of values transformed from 0 to 0.001') %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
-
-\newpage
 
 ## Methodology
 
@@ -110,6 +109,7 @@ The graph and the regression analysis show no evidence of the color's effect on 
 
 As can be seen in the appendix, the results from the [Linear Regression](#lm_herbivory) and the [Categorical Regression](#categorical_model_herbivory) are consistent with the results of the beta regression (that is presented below).
 
+![](herbivory_by_color_plot2.png){fig-align="center"}
 
 ```{r "Beta Regression for Rate of Leaf Damage (Herbivory)"}
 
@@ -135,19 +135,17 @@ beta_reg_herbivors_model %>%
   )) %>% 
   kableExtra::kable(caption = "Beta Regression for Rate of Leaf Damage (Herbivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
-  kableExtra::kable_styling(latex_options = "HOLD_position")
-  
+                    longtable = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
-
-![](herbivory_by_color_plot.png){fig-align="center" width="590" height="253"}
-
 
 ### Whether the florivors chose to eat the flower because of the color of the flower
 
 According to the Beta regression analysis, there is no evidence for the effect of the color over the florivory rate for every reasonable significance level. We can see that we get the same result in the [Beta regression model just on color](#flori_color_beta_reg).
 
 As can be seen in the appendix, the results from the [Linear Regression](#linear-regression-1) and the [Categorical Regression](#categorical-regression-1) are consistent with the results of the beta regression (that is presented below).
+
+![](florivory_by_color_plot2.png){fig-align="center"}
 
 ```{r "Beta Regression for Rate of Petals Damage (Florivory)"}
 
@@ -171,14 +169,11 @@ beta_reg_florivors_model %>%
                                   Coefficients == "ht_cm" ~ "Height",
                                   Coefficients == "FlowersexualMale" ~ "Flowersexual,Male"
   )) %>% 
-  
   kableExtra::kable(caption = "Beta Regression for Rate of Petals Damage (Florivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
-
-![](florivory_by_color_plot.png){fig-align="center" width="528" height="253"}
 
 \newpage
 
@@ -186,7 +181,7 @@ beta_reg_florivors_model %>%
 
 According to the regression analysis, there is a significant negative effect of the rate of leaf damage (Herbivory) over the weight of the seeds for a significance level of 0.05 but not for a significance level of 0.01.
 
-![](herbivory_by_weight_of_seeds.png){fig-align="center" width="526" height="335"}
+![](herbivory_by_weight_of_seeds2.png){fig-align="center"}
 
 ```{r "Linear Model for Seed Weight (Fitness)"}
 lm_herb_fitness_seed_weight <-  readRDS("Saving_models_as_RDS_folder/lm_herb_fitness_seed_weight.RDS")
@@ -215,7 +210,7 @@ lm_herb_fitness_seed_weight %>%
   )) %>% 
   kableExtra::kable(caption = "Linear Model for Seed Weight (Fitness)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -226,7 +221,7 @@ lm_herb_fitness_seed_weight %>%
 
 The regression analysis shows that there is a significant negative effect of the rate of petals damage (Florivory) over the number of seeds for a significance level of 0.1 but not for a significance level of 0.05.
 
-![](florivory_by_number_of_seeds.png){fig-align="center" width="526" height="335"}
+![](florivory_by_number_of_seeds2.png){fig-align="center"}
 
 ```{r "Linear Model for the Number of Seeds (Fitness)"}
 lm_flori_fitness_number_of_seeds <- readRDS("Saving_models_as_RDS_folder/lm_flori_fitness_number_of_seeds.RDS")
@@ -255,9 +250,11 @@ lm_flori_fitness_number_of_seeds %>%
   )) %>% 
   kableExtra::kable(caption = "Linear Model for the Number of Seeds (Fitness)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
-  kableExtra::kable_styling(latex_options = "HOLD_position")
+                    longtable = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
+
+\newpage
 
 ## Conclusions
 
@@ -271,6 +268,7 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 
 -   Two first research questions are analyzed only with data from Bequa site. Recommendation for future research - collect a sufficient number of red flowers in Megido to use data from another site besides Bequa for the two first research questions.
 
+\newpage
 
 ## Appendix {.appendix}
 
@@ -284,7 +282,7 @@ For the two other questions - whether the herbivory reduces the weight of seeds 
 
 (4) A quadrat with 5 focal plants; plant 3 is randomly selected for data collection, and its nearest neighbor is plant 4. Diagram by Moria Robinson.
 
-![](sampling_protocol.png){fig-align="center" width="374"}
+![](sampling_protocol.png){fig-align="center" width="315"}
 
 ### **Variables Description** {#variable-description}
 
@@ -325,9 +323,9 @@ beta_reg_herbivors_color_model %>%
   )) %>% 
   kableExtra::kable(caption = "Beta Regression for Rate of Leaf Damage (Herbivory) by Color",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
-  
+
 
 ```
 
@@ -357,7 +355,7 @@ categorical_regression_herbivors %>%
   )) %>% 
   kableExtra::kable(caption = "Categorical Regression for Rate of Leaf Damage (Herbivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
@@ -385,7 +383,7 @@ lm_herbivory_alternative %>%
   )) %>% 
   kableExtra::kable(caption = "Linear Regression for Rate of Leaf Damage (Herbivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -414,7 +412,7 @@ beta_reg_florivors_color_model %>%
                                   Coefficients == "colorRed" ~ "Color,Red")) %>% 
   kableExtra::kable(caption = "Beta Regression for Rate of Petals Damage (Florivory) by Color",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 ```
 
@@ -445,7 +443,7 @@ categorical_regression_florivors %>%
   )) %>% 
   kableExtra::kable(caption = "Categorical Regression for Rate of Petals Damage (Florivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -480,7 +478,7 @@ lm_florivor_alternative %>%
   )) %>% 
   kableExtra::kable(caption = "Linear Regression for Rate of Petals Damage (Florivory)",
                     booktabs = TRUE,
-                    longtable = TRUE) %>% 
+                    longtable = TRUE) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```

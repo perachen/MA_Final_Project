@@ -60,7 +60,6 @@ omitted_data <- first_two_q %>%
   na.omit() %>% 
   mutate(rate_Herb = ifelse(rate_Herb == 0, 0.001, rate_Herb)) %>% 
   mutate(rate_petals = case_when(rate_petals == 0 ~ 0.001,
-                                 rate_petals == 1 ~ 0.999,
                                  T ~ rate_petals)) 
 
 # preparing the data for the last two questions ====
